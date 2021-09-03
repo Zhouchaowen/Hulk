@@ -6,6 +6,7 @@ import (
 	"github.com/srlemon/gen-id/utils"
 	"math/rand"
 	"reflect"
+	"strconv"
 	"time"
 )
 
@@ -69,9 +70,9 @@ func generatorRandDate() time.Time {
 	return time.Unix(utils.RandInt64(begin.Unix(), end.Unix()), 0)
 }
 
-func Generator(config RequestConfig) map[string]interface{} {
-	ret := make(map[string]interface{})
-	for k, v := range config.Param {
+func Generator(config map[string]ParamLimit) map[string]interface{} {
+	var ret = make(map[string]interface{}, len(config))
+	for k, v := range config {
 		switch v.GetParamType() {
 		case reflect.Int.String():
 			t, _ := v.(*IntRule)
@@ -89,9 +90,20 @@ func Generator(config RequestConfig) map[string]interface{} {
 				ret[k] = flo
 			}
 		case reflect.Map.String():
-			return nil
+			t, _ := v.(*MapRule)
+			ret[k] = Generator(t.Types)
 		case reflect.Array.String():
-			return nil
+			t, _ := v.(*ArrayRule)
+			arr := make([]interface{}, t.Len)
+			for i := 0; i < t.Len; i++ {
+				idx := strconv.Itoa(i)
+				var chr = map[string]ParamLimit{
+					idx: t.Type,
+				}
+				tt := Generator(chr)
+				arr[i] = tt[idx]
+			}
+			ret[k] = arr
 		case reflect.Bool.String():
 			return nil
 		}
