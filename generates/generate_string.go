@@ -4,7 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"math/rand"
-	"reflect"
+)
+
+const (
+	minChar = 97
+	maxChar = 122
+	minLen  = 0
+	maxLen  = 255
 )
 
 func generateRangeString(min, max int, minLen, maxLen int) (string, error) {
@@ -24,6 +30,10 @@ func generateOneChar() byte {
 	return byte(rand.Intn(128))
 }
 
+func generateDefaultString() (string, error) {
+	return generateRangeString(minChar, maxChar, minLen, maxLen)
+}
+
 type StringRule struct {
 	Min    int
 	Max    int
@@ -31,12 +41,12 @@ type StringRule struct {
 	MaxLen int
 }
 
-func (s *StringRule) GetParamType() string {
-	return reflect.String.String()
+func (s *StringRule) GetParamType() ParamType {
+	return String
 }
 
-func (s *StringRule) IsParent() bool {
-	return false
+func (s *StringRule) GetNonComplianceCount() int {
+	return 0
 }
 
 func (s *StringRule) GetNext() ParamLimit {

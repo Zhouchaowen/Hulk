@@ -2,7 +2,6 @@ package generates
 
 import (
 	"Hulk/utils"
-	"encoding/json"
 	"testing"
 )
 
@@ -46,8 +45,8 @@ func TestGeneratorRandDate(t *testing.T) {
 
 func TestGenerator(t *testing.T) {
 	g1 := StringRule{
-		Max:    100,
-		Min:    50,
+		Max:    122,
+		Min:    95,
 		MaxLen: 12,
 		MinLen: 5,
 	}
@@ -56,15 +55,15 @@ func TestGenerator(t *testing.T) {
 		Max: 130,
 	}
 	g3 := FloatRule{
-		Min:    5000,
-		Max:    100000,
+		Min:    50,
+		Max:    100,
 		Retain: 2,
 	}
 	g4 := MapRule{
 		Types: map[string]ParamLimit{
 			"name":  &g1,
 			"age":   &g2,
-			"money": &g3,
+			"score": &g3,
 		},
 	}
 	g5 := ArrayRule{
@@ -75,13 +74,12 @@ func TestGenerator(t *testing.T) {
 		Param: map[string]ParamLimit{
 			"name":  &g1,
 			"age":   &g2,
-			"money": &g3,
+			"score": &g3,
 			"map":   &g4,
 			"arr":   &g5,
 		},
 	}
-	by, _ := json.Marshal(Generator(ic.Param))
-	t.Log(string(by))
+	Generator("", ic.Param)
 }
 
 func TestWriteCsv(t *testing.T) {
@@ -121,11 +119,11 @@ func TestWriteCsv(t *testing.T) {
 		},
 	}
 	var buf = make([]interface{}, 100)
-	for i := 0; i < 100; i++ {
-		buf[i] = Generator(ic.Param)
+	for i := 0; i < 2; i++ {
+		buf[i] = Generator("", ic.Param)
 	}
 
-	err := utils.WriteJson("./data.json", buf)
+	err := utils.WriteJson("D:\\GOPROJECTS\\src\\Hulk\\data.json", buf)
 	if err != nil {
 		panic(err)
 	}
@@ -133,7 +131,7 @@ func TestWriteCsv(t *testing.T) {
 
 func TestReadCsv(t *testing.T) {
 	var buf = make([]map[string]interface{}, 100)
-	err := utils.ReadJson("./data.json", &buf)
+	err := utils.ReadJson("D:\\GOPROJECTS\\src\\Hulk\\data.json", &buf)
 	if err != nil {
 		panic(err)
 	}

@@ -4,8 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"reflect"
 	"strconv"
+)
+
+const (
+	maxFloat = float64(1 << 63)
+	minFloat = -float64(1 << 63)
+	retain   = 2
 )
 
 func generateRangeFloat(min, max float64, retain int) (float64, error) {
@@ -16,18 +21,22 @@ func generateRangeFloat(min, max float64, retain int) (float64, error) {
 	return strconv.ParseFloat(fmt.Sprintf("%."+strconv.Itoa(retain)+"f", t), 64)
 }
 
+func generateDefaultFloat() (float64, error) {
+	return generateRangeFloat(minFloat, maxFloat, retain)
+}
+
 type FloatRule struct {
 	Min    float64
 	Max    float64
 	Retain int
 }
 
-func (s *FloatRule) GetParamType() string {
-	return reflect.Float64.String()
+func (s *FloatRule) GetParamType() ParamType {
+	return Float64
 }
 
-func (s *FloatRule) IsParent() bool {
-	return false
+func (s *FloatRule) GetNonComplianceCount() int {
+	return 0
 }
 
 func (s *FloatRule) GetNext() ParamLimit {
