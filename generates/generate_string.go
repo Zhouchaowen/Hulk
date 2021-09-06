@@ -7,8 +7,14 @@ import (
 )
 
 const (
-	minChar    = 33
-	maxChar    = 126
+	minChar    = 33  // !
+	maxChar    = 126 // ~
+	minChara   = 'a'
+	maxCharz   = 'z'
+	minCharA   = 'A'
+	maxCharZ   = 'Z'
+	minChar0   = '0'
+	maxCHar9   = '9'
 	minCharLen = 0
 	maxCharLen = 255
 )
@@ -26,12 +32,24 @@ func generateRangeString(min, max int, minLen, maxLen int) (string, error) {
 	return buf.String(), nil
 }
 
+func generateFixedString(min, max int, n int) (string, error) {
+	if max <= min || min < minChar || max > maxChar {
+		return "", errors.New("max cannot be less than min or min cannot be less 33 or max cannot be greater than 126")
+	}
+	var buf bytes.Buffer
+	for i := 0; i < n; i++ {
+		b := rand.Intn(max-min) + min
+		buf.WriteByte(byte(b))
+	}
+	return buf.String(), nil
+}
+
 func generateOneChar() byte {
 	return byte(rand.Intn(maxChar-minChar) + minChar)
 }
 
 func generateDefaultString() (string, error) {
-	return generateRangeString(minChar, maxChar, minCharLen, maxCharLen)
+	return generateRangeString(minChara, maxCharz, minCharLen, maxCharLen)
 }
 
 // 获取[minChar，min]字符区间的值

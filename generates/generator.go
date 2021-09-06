@@ -204,6 +204,11 @@ func generatorNonComplianceParam(paramLimit ParamLimit, idx int) interface{} {
 		if res, err := generateNonComplianceString(t, idx); err == nil {
 			return res
 		}
+	case Phone:
+		t, _ := paramLimit.(*PhoneRule)
+		if res, err := generateNonCompliancePhone(t, idx); err == nil {
+			return res
+		}
 	}
 	return nil
 }
