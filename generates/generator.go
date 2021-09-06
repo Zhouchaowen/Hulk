@@ -54,7 +54,7 @@ var ParamTypeNames = []string{
 type ParamLimit interface {
 	GetParamType() ParamType
 	GetNonComplianceCount() int
-	GetNext() ParamLimit
+	GetNonComplianceParamTypes() []ParamType
 }
 
 type RequestConfig struct {
@@ -164,8 +164,8 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 	return ret
 }
 
-func generatorNonCompliance(idx int) (interface{}, error) {
-	switch ParamType(idx) {
+func generatorNonCompliance(paramType ParamType) (interface{}, error) {
+	switch paramType {
 	case Bool:
 		return generateRangeBool(), nil
 	case Int:
@@ -178,27 +178,41 @@ func generatorNonCompliance(idx int) (interface{}, error) {
 	return nil, nil
 }
 
-func generatorNonComplianceParam(paramLimit ParamLimit, idx int) interface{} {
+func generatorNonComplianceParamType(paramLimit ParamLimit, paramType ParamType) interface{} {
 	switch paramLimit.GetParamType() {
 	case Int:
-		if res, err := generatorNonCompliance(idx); err == nil {
+		if res, err := generatorNonCompliance(paramType); err == nil {
 			return res
 		}
 	case String:
-		return nil
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case Float64:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
 	}
 	return nil
 }
 
-func generatorNonComplianceTypeParam(paramLimit ParamLimit, idx int) interface{} {
+func generatorNonComplianceParam(paramLimit ParamLimit, idx int) interface{} {
 	switch paramLimit.GetParamType() {
 	case Int:
 		t, _ := paramLimit.(*IntRule)
 		if res, err := generateNonComplianceInt(t, idx); err == nil {
 			return res
 		}
+	case Float64:
+		t, _ := paramLimit.(*FloatRule)
+		if res, err := generateNonComplianceFloat(t, idx); err == nil {
+			return res
+		}
 	case String:
-		return nil
+		t, _ := paramLimit.(*StringRule)
+		if res, err := generateNonComplianceString(t, idx); err == nil {
+			return res
+		}
 	}
 	return nil
 }
@@ -213,14 +227,39 @@ func Generator(path string, config map[string]ParamLimit) map[string]interface{}
 		num++
 	}
 
+	// generatorNonComplianceTypeParam
+	//for i := 0; i < len(paramKey); i++ {
+	//	val := paramValue[i]
+	//	key := paramKey[i]
+	//	for j := 0; j < val.GetNonComplianceCount(); j++ {
+	//		var ret = make(map[string]interface{}, len(config))
+	//		for k, v := range config {
+	//			if key == k {
+	//				ret[k] = generatorNonComplianceParam(v, j)
+	//			} else {
+	//				var chr = map[string]ParamLimit{
+	//					"key": v,
+	//				}
+	//				tt := generatorParams(chr)
+	//				ret[k] = tt["key"]
+	//			}
+	//		}
+	//		b, _ := json.Marshal(ret)
+	//		fmt.Println(string(b))
+	//
+	//	}
+	//}
+
+	// generatorNonComplianceParam
 	for i := 0; i < len(paramKey); i++ {
 		val := paramValue[i]
 		key := paramKey[i]
-		for j := 0; j < val.GetNonComplianceCount(); j++ {
+		paramType := val.GetNonComplianceParamTypes()
+		for j := 0; j < len(paramType); j++ {
 			var ret = make(map[string]interface{}, len(config))
 			for k, v := range config {
 				if key == k {
-					ret[k] = generatorNonComplianceTypeParam(v, j)
+					ret[k] = generatorNonComplianceParamType(v, paramType[j])
 				} else {
 					var chr = map[string]ParamLimit{
 						"key": v,
@@ -231,8 +270,8 @@ func Generator(path string, config map[string]ParamLimit) map[string]interface{}
 			}
 			b, _ := json.Marshal(ret)
 			fmt.Println(string(b))
-
 		}
 	}
+
 	return nil
 }

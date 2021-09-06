@@ -13,6 +13,6 @@ func (s *ArrayRule) GetNonComplianceCount() int {
 	return 0
 }
 
-func (s *ArrayRule) GetNext() ParamLimit {
-	return nil
+func (s *ArrayRule) GetNonComplianceParamTypes() []ParamType {
+	return []ParamType{}
 }

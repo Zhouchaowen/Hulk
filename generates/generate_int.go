@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	maxInt             = 1<<31 - 1
-	minInt             = -1<<31 - 1
-	nonComplianceCount = 3
+	maxInt                = 1<<31 - 1
+	minInt                = -1<<31 - 1
+	nonComplianceIntCount = 3
 )
 
 func generateRangeBool() bool {
@@ -69,9 +69,13 @@ func (s *IntRule) GetParamType() ParamType {
 }
 
 func (s *IntRule) GetNonComplianceCount() int {
-	return nonComplianceCount
+	return nonComplianceIntCount
 }
 
-func (s *IntRule) GetNext() ParamLimit {
-	return nil
+func (s *IntRule) GetNonComplianceParamTypes() []ParamType {
+	return []ParamType{
+		Bool,
+		Float64,
+		String,
+	}
 }

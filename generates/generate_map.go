@@ -12,6 +12,6 @@ func (s *MapRule) GetNonComplianceCount() int {
 	return 0
 }
 
-func (s *MapRule) GetNext() ParamLimit {
-	return nil
+func (s *MapRule) GetNonComplianceParamTypes() []ParamType {
+	return []ParamType{}
 }

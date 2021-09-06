@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	maxFloat = float64(1 << 63)
-	minFloat = -float64(1 << 63)
-	retain   = 2
+	maxFloat  = float64(1 << 31)
+	minFloat  = -float64(1 << 31)
+	retain    = 2
+	maxRetain = 10
 )
 
 func generateRangeFloat(min, max float64, retain int) (float64, error) {
@@ -25,6 +26,33 @@ func generateDefaultFloat() (float64, error) {
 	return generateRangeFloat(minFloat, maxFloat, retain)
 }
 
+// 获取[minFloat，min]区间的值
+func generateMinRangeFloat(min float64, retain int) (float64, error) {
+	return generateRangeFloat(minFloat, min, retain)
+}
+
+// 获取[max，maxFloat]区间的值
+func generateMaxRangeFloat(max float64, retain int) (float64, error) {
+	return generateRangeFloat(max, maxFloat, retain)
+}
+
+// 获取[max，max]区间小数点后保留 maxRetain 的值
+func generateRetainRangeFloat(min, max float64) (float64, error) {
+	return generateRangeFloat(min, max, maxRetain)
+}
+
+func generateNonComplianceFloat(floatRule *FloatRule, idx int) (float64, error) {
+	switch idx {
+	case 0:
+		return generateMinRangeFloat(floatRule.Min, floatRule.Retain)
+	case 1:
+		return generateMaxRangeFloat(floatRule.Max, floatRule.Retain)
+	case 2:
+		return generateRetainRangeFloat(floatRule.Min, floatRule.Max)
+	}
+	return 0, nil
+}
+
 type FloatRule struct {
 	Min    float64
 	Max    float64
@@ -36,9 +64,13 @@ func (s *FloatRule) GetParamType() ParamType {
 }
 
 func (s *FloatRule) GetNonComplianceCount() int {
-	return 0
+	return 3
 }
 
-func (s *FloatRule) GetNext() ParamLimit {
-	return nil
+func (s *FloatRule) GetNonComplianceParamTypes() []ParamType {
+	return []ParamType{
+		Bool,
+		Int,
+		String,
+	}
 }
