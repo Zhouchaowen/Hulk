@@ -40,7 +40,7 @@ func TestGeneratorProvinceAdnCityRand(t *testing.T) {
 }
 
 func TestGeneratorRandDate(t *testing.T) {
-	t.Log(generatorRandDate())
+	t.Log(generatorRandTime())
 }
 
 func TestGenerator(t *testing.T) {
@@ -59,27 +59,41 @@ func TestGenerator(t *testing.T) {
 		Max:    100,
 		Retain: 2,
 	}
-	g4 := MapRule{
+	g4 := AddressRule{}
+	g5 := EmailRule{}
+	g6 := BankIdRule{}
+	g7 := IdCartRule{}
+	g8 := PhoneRule{}
+	g9 := IpRule{}
+	g10 := TimeRule{}
+	g11 := MapRule{
 		Types: map[string]ParamLimit{
 			"name":  &g1,
 			"age":   &g2,
 			"score": &g3,
 		},
 	}
-	g5 := ArrayRule{
+	g12 := ArrayRule{
 		Len:  2,
 		Type: &g4,
 	}
 	ic := RequestConfig{
 		Param: map[string]ParamLimit{
-			"name":  &g1,
-			"age":   &g2,
-			"score": &g3,
-			"map":   &g4,
-			"arr":   &g5,
+			"name":     &g1,
+			"age":      &g2,
+			"score":    &g3,
+			"address":  &g4,
+			"email":    &g5,
+			"BankId":   &g6,
+			"IDCart":   &g7,
+			"Phone":    &g8,
+			"IP":       &g9,
+			"birthday": &g10,
+			"map":      &g11,
+			"arr":      &g12,
 		},
 	}
-	Generator("", ic.Param)
+	Generator("/Users/zdns/Desktop/Hulk", ic.Param)
 }
 
 func TestWriteCsv(t *testing.T) {

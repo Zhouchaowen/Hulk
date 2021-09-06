@@ -12,6 +12,6 @@ func (s *MapRule) GetNonComplianceCount() int {
 	return 0
 }
 
-func (s *MapRule) GetNonComplianceParamTypes() []ParamType {
+func (s *MapRule) GetNonComplianceOtherTypes() []ParamType {
 	return []ParamType{}
 }

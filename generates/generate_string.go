@@ -14,7 +14,7 @@ const (
 )
 
 func generateRangeString(min, max int, minLen, maxLen int) (string, error) {
-	if max <= min || maxLen <= minLen || min < 33 || max > 126 {
+	if max <= min || maxLen <= minLen || min < minChar || max > maxChar {
 		return "", errors.New("max cannot be less than min or min cannot be less 33 or max cannot be greater than 126")
 	}
 	var buf bytes.Buffer
@@ -27,7 +27,7 @@ func generateRangeString(min, max int, minLen, maxLen int) (string, error) {
 }
 
 func generateOneChar() byte {
-	return byte(rand.Intn(128))
+	return byte(rand.Intn(maxChar-minChar) + minChar)
 }
 
 func generateDefaultString() (string, error) {
@@ -83,7 +83,7 @@ func (s *StringRule) GetNonComplianceCount() int {
 	return 4
 }
 
-func (s *StringRule) GetNonComplianceParamTypes() []ParamType {
+func (s *StringRule) GetNonComplianceOtherTypes() []ParamType {
 	return []ParamType{
 		Bool,
 		Int,

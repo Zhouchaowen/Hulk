@@ -13,6 +13,6 @@ func (s *ArrayRule) GetNonComplianceCount() int {
 	return 0
 }
 
-func (s *ArrayRule) GetNonComplianceParamTypes() []ParamType {
+func (s *ArrayRule) GetNonComplianceOtherTypes() []ParamType {
 	return []ParamType{}
 }

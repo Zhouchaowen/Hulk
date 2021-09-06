@@ -72,7 +72,7 @@ func (s *IntRule) GetNonComplianceCount() int {
 	return nonComplianceIntCount
 }
 
-func (s *IntRule) GetNonComplianceParamTypes() []ParamType {
+func (s *IntRule) GetNonComplianceOtherTypes() []ParamType {
 	return []ParamType{
 		Bool,
 		Float64,

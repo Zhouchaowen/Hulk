@@ -67,7 +67,7 @@ func (s *FloatRule) GetNonComplianceCount() int {
 	return 3
 }
 
-func (s *FloatRule) GetNonComplianceParamTypes() []ParamType {
+func (s *FloatRule) GetNonComplianceOtherTypes() []ParamType {
 	return []ParamType{
 		Bool,
 		Int,

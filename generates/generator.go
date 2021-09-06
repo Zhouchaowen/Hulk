@@ -1,13 +1,11 @@
 package generates
 
 import (
+	utils2 "Hulk/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/srlemon/gen-id/generator"
-	"github.com/srlemon/gen-id/utils"
-	"math/rand"
+	"path"
 	"strconv"
-	"time"
 )
 
 type ParamType int
@@ -26,6 +24,7 @@ const (
 	IDCart
 	Phone
 	IP
+	Time
 )
 
 func (k ParamType) String() string {
@@ -49,12 +48,13 @@ var ParamTypeNames = []string{
 	IDCart:  "idCart",
 	Phone:   "phone",
 	IP:      "ip",
+	Time:    "time",
 }
 
 type ParamLimit interface {
 	GetParamType() ParamType
 	GetNonComplianceCount() int
-	GetNonComplianceParamTypes() []ParamType
+	GetNonComplianceOtherTypes() []ParamType
 }
 
 type RequestConfig struct {
@@ -62,55 +62,7 @@ type RequestConfig struct {
 	Header map[string]interface{}
 }
 
-// 生成地址
-func generateAddress() string {
-	g := generator.GeneratorData{}
-	return g.GeneratorAddress()
-}
-
-// 生成银行卡号
-func generatorBankID() string {
-	g := generator.GeneratorData{}
-	return g.GeneratorBankID()
-}
-
-// 生成邮箱
-func generatorEmail() string {
-	g := generator.GeneratorData{}
-	return g.GeneratorEmail()
-}
-
-// 生成身份证号
-func generatorIDCart() string {
-	g := generator.GeneratorData{}
-	g.GeneratorIDCart()
-	return g.IDCard
-}
-
-// 生成手机号码
-func generatorPhone() string {
-	g := generator.GeneratorData{}
-	return g.GeneratorPhone()
-}
-
-// 生成IP
-func generatorIP() string {
-	rand.Seed(time.Now().Unix())
-	return fmt.Sprintf("%d.%d.%d.%d", rand.Intn(255), rand.Intn(255), rand.Intn(255), rand.Intn(255))
-}
-
-// 生成随机获取城市和地址
-func generatorProvinceAdnCityRand() string {
-	g := generator.GeneratorData{}
-	return g.GeneratorProvinceAdnCityRand()
-}
-
-func generatorRandDate() time.Time {
-	begin, _ := time.Parse("2006-01-02 15:04:05", "1970-01-01 00:00:00")
-	end, _ := time.Parse("2006-01-02 15:04:05", "2019-01-01 00:00:00")
-	return time.Unix(utils.RandInt64(begin.Unix(), end.Unix()), 0)
-}
-
+// 生成合规参数
 func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 	var ret = make(map[string]interface{}, len(config))
 	for k, v := range config {
@@ -159,11 +111,14 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 			ret[k] = generatorIP()
 		case Phone:
 			ret[k] = generatorPhone()
+		case Time:
+			ret[k] = generatorRandTime()
 		}
 	}
 	return ret
 }
 
+// 生成类型默认参数
 func generatorNonCompliance(paramType ParamType) (interface{}, error) {
 	switch paramType {
 	case Bool:
@@ -178,13 +133,14 @@ func generatorNonCompliance(paramType ParamType) (interface{}, error) {
 	return nil, nil
 }
 
-func generatorNonComplianceParamType(paramLimit ParamLimit, paramType ParamType) interface{} {
+// 生成其它类型不合规参数
+func generatorNonComplianceOtherTypeParam(paramLimit ParamLimit, paramType ParamType) interface{} {
 	switch paramLimit.GetParamType() {
-	case Int:
+	case Bool:
 		if res, err := generatorNonCompliance(paramType); err == nil {
 			return res
 		}
-	case String:
+	case Int:
 		if res, err := generatorNonCompliance(paramType); err == nil {
 			return res
 		}
@@ -192,10 +148,45 @@ func generatorNonComplianceParamType(paramLimit ParamLimit, paramType ParamType)
 		if res, err := generatorNonCompliance(paramType); err == nil {
 			return res
 		}
+	case String:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case Array:
+	case Map:
+	case Email:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case Address:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case BankID:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case IDCart:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case Phone:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case IP:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
+	case Time:
+		if res, err := generatorNonCompliance(paramType); err == nil {
+			return res
+		}
 	}
 	return nil
 }
 
+// 生成本类型不合规的参数
 func generatorNonComplianceParam(paramLimit ParamLimit, idx int) interface{} {
 	switch paramLimit.GetParamType() {
 	case Int:
@@ -217,7 +208,7 @@ func generatorNonComplianceParam(paramLimit ParamLimit, idx int) interface{} {
 	return nil
 }
 
-func Generator(path string, config map[string]ParamLimit) map[string]interface{} {
+func getNonComplianceParam(config map[string]ParamLimit) []map[string]interface{} {
 	var paramValue = make([]ParamLimit, len(config))
 	var paramKey = make([]string, len(config))
 	var num = 0
@@ -226,40 +217,15 @@ func Generator(path string, config map[string]ParamLimit) map[string]interface{}
 		paramKey[num] = k
 		num++
 	}
-
-	// generatorNonComplianceTypeParam
-	//for i := 0; i < len(paramKey); i++ {
-	//	val := paramValue[i]
-	//	key := paramKey[i]
-	//	for j := 0; j < val.GetNonComplianceCount(); j++ {
-	//		var ret = make(map[string]interface{}, len(config))
-	//		for k, v := range config {
-	//			if key == k {
-	//				ret[k] = generatorNonComplianceParam(v, j)
-	//			} else {
-	//				var chr = map[string]ParamLimit{
-	//					"key": v,
-	//				}
-	//				tt := generatorParams(chr)
-	//				ret[k] = tt["key"]
-	//			}
-	//		}
-	//		b, _ := json.Marshal(ret)
-	//		fmt.Println(string(b))
-	//
-	//	}
-	//}
-
-	// generatorNonComplianceParam
+	var res = make([]map[string]interface{}, 0)
 	for i := 0; i < len(paramKey); i++ {
 		val := paramValue[i]
 		key := paramKey[i]
-		paramType := val.GetNonComplianceParamTypes()
-		for j := 0; j < len(paramType); j++ {
+		for j := 0; j < val.GetNonComplianceCount(); j++ {
 			var ret = make(map[string]interface{}, len(config))
 			for k, v := range config {
 				if key == k {
-					ret[k] = generatorNonComplianceParamType(v, paramType[j])
+					ret[k] = generatorNonComplianceParam(v, j)
 				} else {
 					var chr = map[string]ParamLimit{
 						"key": v,
@@ -270,8 +236,63 @@ func Generator(path string, config map[string]ParamLimit) map[string]interface{}
 			}
 			b, _ := json.Marshal(ret)
 			fmt.Println(string(b))
+			res = append(res, ret)
 		}
 	}
+	return res
+}
 
+func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]interface{} {
+	var paramValue = make([]ParamLimit, len(config))
+	var paramKey = make([]string, len(config))
+	var num = 0
+	for k, v := range config {
+		paramValue[num] = v
+		paramKey[num] = k
+		num++
+	}
+	var res = make([]map[string]interface{}, 0)
+	for i := 0; i < len(paramKey); i++ {
+		val := paramValue[i]
+		key := paramKey[i]
+		paramType := val.GetNonComplianceOtherTypes()
+		for j := 0; j < len(paramType); j++ {
+			var ret = make(map[string]interface{}, len(config))
+			for k, v := range config {
+				if key == k {
+					ret[k] = generatorNonComplianceOtherTypeParam(v, paramType[j])
+				} else {
+					var chr = map[string]ParamLimit{
+						"key": v,
+					}
+					tt := generatorParams(chr)
+					ret[k] = tt["key"]
+				}
+			}
+			b, _ := json.Marshal(ret)
+			fmt.Println(string(b))
+			res = append(res, ret)
+		}
+	}
+	return res
+}
+
+func Generator(dir string, config map[string]ParamLimit) map[string]interface{} {
+	//param := generatorParams(config)
+	//fileParamName := path.Join(dir, "param.json")
+	//if err := utils2.WriteJson(fileParamName, param); err != nil {
+	//
+	//}
+	//ncParams := getNonComplianceParam(config)
+	//fileParamName := path.Join(dir, "nc_param.json")
+	//if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
+	//
+	//}
+	//
+	ncOtherParams := getNonComplianceOtherTypeParam(config)
+	fileParamName := path.Join(dir, "nc_other_param.json")
+	if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
+
+	}
 	return nil
 }
