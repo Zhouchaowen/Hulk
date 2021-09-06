@@ -26,3 +26,16 @@ func (s *BankIdRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *BankIdRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generatorBankID())
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		if param, err := generatorNonCompliance(otherTypes[i]); err != nil && param != nil {
+			res = append(res, param)
+		}
+	}
+	return res
+}

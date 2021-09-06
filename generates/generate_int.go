@@ -79,3 +79,22 @@ func (s *IntRule) GetNonComplianceOtherTypes() []ParamType {
 		String,
 	}
 }
+
+func (s *IntRule) GetParams() []interface{} {
+	var res []interface{}
+	num, _ := generateRangeInt(s.Min, s.Max)
+	res = append(res, num)
+	num, _ = generateMinRangeInt(s.Min)
+	res = append(res, num)
+	num, _ = generateMaxRangeInt(s.Max)
+	res = append(res, num)
+	num, _ = generateNegativeInt()
+	res = append(res, num)
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		param, _ := generatorNonCompliance(otherTypes[i])
+		res = append(res, param)
+	}
+	return res
+}

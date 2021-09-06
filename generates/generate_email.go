@@ -35,3 +35,17 @@ func (s *EmailRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *EmailRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generatorEmail())
+	res = append(res, generatorNotEmail())
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		if param, err := generatorNonCompliance(otherTypes[i]); err != nil && param != nil {
+			res = append(res, param)
+		}
+	}
+	return res
+}

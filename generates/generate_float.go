@@ -74,3 +74,22 @@ func (s *FloatRule) GetNonComplianceOtherTypes() []ParamType {
 		String,
 	}
 }
+
+func (s *FloatRule) GetParams() []interface{} {
+	var res []interface{}
+	fla, _ := generateRangeFloat(s.Min, s.Max, s.Retain)
+	res = append(res, fla)
+	fla, _ = generateMinRangeFloat(s.Min, s.Retain)
+	res = append(res, fla)
+	fla, _ = generateMaxRangeFloat(s.Max, s.Retain)
+	res = append(res, fla)
+	fla, _ = generateRetainRangeFloat(s.Min, s.Max)
+	res = append(res, fla)
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		param, _ := generatorNonCompliance(otherTypes[i])
+		res = append(res, param)
+	}
+	return res
+}

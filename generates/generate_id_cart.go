@@ -27,3 +27,15 @@ func (s *IdCartRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *IdCartRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generatorIDCart)
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		param, _ := generatorNonCompliance(otherTypes[i])
+		res = append(res, param)
+	}
+	return res
+}

@@ -66,3 +66,18 @@ func (s *PhoneRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *PhoneRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generatorPhone())
+	res = append(res, generatorPhoneMin11())
+	res = append(res, generatorPhoneMax11())
+	res = append(res, generatorNotPhone())
+	res = append(res, generatorNotPhoneChar())
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		param, _ := generatorNonCompliance(otherTypes[i])
+		res = append(res, param)
+	}
+	return res
+}

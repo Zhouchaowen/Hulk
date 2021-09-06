@@ -56,3 +56,18 @@ func (s *IpRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *IpRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generatorIP())
+	res = append(res, generatorNotIP())
+	res = append(res, generatorNotIPChar())
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		if param, err := generatorNonCompliance(otherTypes[i]); err != nil && param != nil {
+			res = append(res, param)
+		}
+	}
+	return res
+}

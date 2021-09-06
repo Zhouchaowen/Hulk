@@ -32,3 +32,16 @@ func (s *AddressRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *AddressRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generateAddress())
+
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		if param, err := generatorNonCompliance(otherTypes[i]); err != nil && param != nil {
+			res = append(res, param)
+		}
+	}
+	return res
+}

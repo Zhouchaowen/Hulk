@@ -30,3 +30,15 @@ func (s *TimeRule) GetNonComplianceOtherTypes() []ParamType {
 		String,
 	}
 }
+
+func (s *TimeRule) GetParams() []interface{} {
+	var res []interface{}
+	res = append(res, generatorRandTime())
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		if param, err := generatorNonCompliance(otherTypes[i]); err != nil && param != nil {
+			res = append(res, param)
+		}
+	}
+	return res
+}

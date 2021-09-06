@@ -301,3 +301,114 @@ func Generator(dir string, config map[string]ParamLimit) map[string]interface{} 
 	}
 	return nil
 }
+
+type ParamNode struct {
+	Key  string        `json:"key"`
+	List []interface{} `json:"list"`
+}
+
+func SpreadParams(config map[string]ParamLimit) []ParamNode {
+	var ret = make([]ParamNode, 0)
+	for k, v := range config {
+		switch v.GetParamType() {
+		case Int:
+			t, _ := v.(*IntRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case String:
+			t, _ := v.(*StringRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case Float64:
+			t, _ := v.(*FloatRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case Map: // 坑
+			t, _ := v.(*MapRule)
+			children := SpreadParams(t.Types)
+			for i, _ := range children {
+				node := ParamNode{
+					Key:  k + "." + children[i].Key,
+					List: children[i].List,
+				}
+				ret = append(ret, node)
+			}
+		case Array: // 坑
+			t, _ := v.(*ArrayRule)
+			for i := 0; i < t.Len; i++ {
+				var chr = map[string]ParamLimit{
+					"key": t.Type,
+				}
+				children := SpreadParams(chr)
+				for j, _ := range children {
+					node := ParamNode{
+						Key:  k + "." + strconv.Itoa(i) + "." + children[j].Key,
+						List: children[j].List,
+					}
+					ret = append(ret, node)
+				}
+			}
+		case Bool:
+
+		case Email:
+			t, _ := v.(*EmailRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case Address:
+			t, _ := v.(*AddressRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case BankID:
+			t, _ := v.(*BankIdRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case IDCart:
+			t, _ := v.(*IdCartRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case IP:
+			t, _ := v.(*IpRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case Phone:
+			t, _ := v.(*PhoneRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		case Time:
+			t, _ := v.(*TimeRule)
+			node := ParamNode{
+				Key:  k,
+				List: t.GetParams(),
+			}
+			ret = append(ret, node)
+		}
+	}
+	return ret
+}

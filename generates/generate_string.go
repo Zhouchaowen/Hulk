@@ -108,3 +108,24 @@ func (s *StringRule) GetNonComplianceOtherTypes() []ParamType {
 		Float64,
 	}
 }
+
+func (s *StringRule) GetParams() []interface{} {
+	var res []interface{}
+	str, _ := generateRangeString(s.Min, s.Max, s.MinLen, s.MaxLen)
+	res = append(res, str)
+	str, _ = generateMinCharRangeString(s.Min, s.MinLen, s.MaxLen)
+	res = append(res, str)
+	str, _ = generateMaxCharRangeString(s.Max, s.MinLen, s.MaxLen)
+	res = append(res, str)
+	str, _ = generateMinRangeString(s.Min, s.Max, s.MinLen)
+	res = append(res, str)
+	str, _ = generateMaxRangeString(s.Min, s.Max, s.MaxLen)
+	res = append(res, str)
+	otherTypes := s.GetNonComplianceOtherTypes()
+	for i, _ := range otherTypes {
+		if param, err := generatorNonCompliance(otherTypes[i]); err != nil && param != nil {
+			res = append(res, param)
+		}
+	}
+	return res
+}
