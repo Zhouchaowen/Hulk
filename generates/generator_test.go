@@ -94,7 +94,7 @@ func TestGenerator(t *testing.T) {
 			"arr":      &g12,
 		},
 	}
-	Generator("D:\\GOPROJECTS\\src\\Hulk", ic.Param)
+	Generator("/Users/zdns/Desktop/Hulk", ic.Param)
 }
 
 func TestWriteCsv(t *testing.T) {

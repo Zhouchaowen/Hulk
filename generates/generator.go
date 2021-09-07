@@ -226,6 +226,36 @@ func getNonComplianceParam(config map[string]ParamLimit) []map[string]interface{
 	for i := 0; i < len(paramKey); i++ {
 		val := paramValue[i]
 		key := paramKey[i]
+
+		// 生成Map
+		if t, ok := val.(*MapRule); ok {
+			chi := getNonComplianceParam(t.Types)
+			for l, _ := range chi {
+				ma := generatorParams(config)
+				ma[key] = chi[l]
+				res = append(res, ma)
+			}
+			continue
+		}
+
+		// 生成Array
+		if t, ok := val.(*ArrayRule); ok {
+			var chr = map[string]ParamLimit{
+				"key": t.Type,
+			}
+			chi := getNonComplianceParam(chr)
+			for l, _ := range chi {
+				var arr = make([]interface{}, t.Len)
+				for k := 0; k < t.Len; k++ {
+					arr[k] = chi[l]["key"]
+				}
+				ma := generatorParams(config)
+				ma[key] = arr
+				res = append(res, ma)
+			}
+			continue
+		}
+
 		for j := 0; j < val.GetNonComplianceCount(); j++ {
 			var ret = make(map[string]interface{}, len(config))
 			for k, v := range config {
@@ -239,8 +269,6 @@ func getNonComplianceParam(config map[string]ParamLimit) []map[string]interface{
 					ret[k] = tt["key"]
 				}
 			}
-			b, _ := json.Marshal(ret)
-			fmt.Println(string(b))
 			res = append(res, ret)
 		}
 	}
@@ -260,12 +288,42 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 	for i := 0; i < len(paramKey); i++ {
 		val := paramValue[i]
 		key := paramKey[i]
-		paramType := val.GetNonComplianceOtherTypes()
-		for j := 0; j < len(paramType); j++ {
+
+		// 生成Map
+		if t, ok := val.(*MapRule); ok {
+			chi := getNonComplianceOtherTypeParam(t.Types)
+			for l, _ := range chi {
+				ma := generatorParams(config)
+				ma[key] = chi[l]
+				res = append(res, ma)
+			}
+			continue
+		}
+
+		// 生成Array
+		if t, ok := val.(*ArrayRule); ok {
+			var chr = map[string]ParamLimit{
+				"key": t.Type,
+			}
+			chi := getNonComplianceOtherTypeParam(chr)
+			for l, _ := range chi {
+				var arr = make([]interface{}, t.Len)
+				for k := 0; k < t.Len; k++ {
+					arr[k] = chi[l]["key"]
+				}
+				ma := generatorParams(config)
+				ma[key] = arr
+				res = append(res, ma)
+			}
+			continue
+		}
+
+		paramTypes := val.GetNonComplianceOtherTypes()
+		for j := 0; j < len(paramTypes); j++ {
 			var ret = make(map[string]interface{}, len(config))
 			for k, v := range config {
 				if key == k {
-					ret[k] = generatorNonComplianceOtherTypeParam(v, paramType[j])
+					ret[k] = generatorNonComplianceOtherTypeParam(v, paramTypes[j])
 				} else {
 					var chr = map[string]ParamLimit{
 						"key": v,
@@ -274,8 +332,6 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 					ret[k] = tt["key"]
 				}
 			}
-			b, _ := json.Marshal(ret)
-			fmt.Println(string(b))
 			res = append(res, ret)
 		}
 	}
@@ -288,17 +344,27 @@ func Generator(dir string, config map[string]ParamLimit) map[string]interface{} 
 	//if err := utils2.WriteJson(fileParamName, param); err != nil {
 	//
 	//}
-	//ncParams := getNonComplianceParam(config)
-	//fileParamName := path.Join(dir, "nc_param.json")
-	//if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
-	//
-	//}
-	//
-	ncOtherParams := getNonComplianceOtherTypeParam(config)
-	fileParamName := path.Join(dir, "nc_other_param.json")
-	if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
+	ncParams := getNonComplianceParam(config)
+	for i, _ := range ncParams {
+		b, _ := json.Marshal(ncParams[i])
+		fmt.Println(string(b))
+	}
+	fmt.Println(len(ncParams))
+	fileParamName := path.Join(dir, "nc_param.json")
+	if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
 
 	}
+
+	//ncOtherParams := getNonComplianceOtherTypeParam(config)
+	//for i,_ := range ncOtherParams {
+	//	b,_ := json.Marshal(ncOtherParams[i])
+	//	fmt.Println(string(b))
+	//}
+	//fmt.Println(len(ncOtherParams))
+	//fileParamName := path.Join(dir, "nc_other_param.json")
+	//if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
+	//
+	//}
 	return nil
 }
 
@@ -346,12 +412,12 @@ func SpreadParams(config map[string]ParamLimit) []ParamNode {
 			t, _ := v.(*ArrayRule)
 			for i := 0; i < t.Len; i++ {
 				var chr = map[string]ParamLimit{
-					"key": t.Type,
+					"": t.Type,
 				}
 				children := SpreadParams(chr)
 				for j, _ := range children {
 					node := ParamNode{
-						Key:  k + "." + strconv.Itoa(i) + "." + children[j].Key,
+						Key:  k + "." + strconv.Itoa(i) + children[j].Key,
 						List: children[j].List,
 					}
 					ret = append(ret, node)

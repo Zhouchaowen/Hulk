@@ -17,8 +17,8 @@ func ReadJson(path string, v interface{}) error {
 	return nil
 }
 
-func WriteJson(path string,data interface{}) error {
-	value,err := json.Marshal(data)
+func WriteJson(path string, data interface{}) error {
+	value, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
