@@ -2,8 +2,6 @@ package generates
 
 import (
 	utils2 "Hulk/utils"
-	"encoding/json"
-	"fmt"
 	"path"
 	"strconv"
 )
@@ -339,21 +337,21 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 }
 
 func Generator(dir string, config map[string]ParamLimit) map[string]interface{} {
-	//param := generatorParams(config)
-	//fileParamName := path.Join(dir, "param.json")
-	//if err := utils2.WriteJson(fileParamName, param); err != nil {
-	//
-	//}
-	ncParams := getNonComplianceParam(config)
-	for i, _ := range ncParams {
-		b, _ := json.Marshal(ncParams[i])
-		fmt.Println(string(b))
-	}
-	fmt.Println(len(ncParams))
-	fileParamName := path.Join(dir, "nc_param.json")
-	if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
+	param := generatorParams(config)
+	fileParamName := path.Join(dir, "param.json")
+	if err := utils2.WriteJson(fileParamName, param); err != nil {
 
 	}
+	//ncParams := getNonComplianceParam(config)
+	//for i, _ := range ncParams {
+	//	b, _ := json.Marshal(ncParams[i])
+	//	fmt.Println(string(b))
+	//}
+	//fmt.Println(len(ncParams))
+	//fileParamName := path.Join(dir, "nc_param.json")
+	//if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
+	//
+	//}
 
 	//ncOtherParams := getNonComplianceOtherTypeParam(config)
 	//for i,_ := range ncOtherParams {
