@@ -47,6 +47,9 @@ func (s *EmailRule) GetNonComplianceCount() int {
 }
 
 func (s *EmailRule) GetNonComplianceOtherTypes() []ParamType {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return []ParamType{}
+	}
 	return []ParamType{
 		Bool,
 		Int,

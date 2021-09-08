@@ -29,10 +29,10 @@ func generateString(s *StringRule) (string, error) {
 		return "", err
 	}
 
-	if s.Prefix != "" {
+	if s.Prefix != "" || len(s.Prefix) != 0 {
 		res = res + s.Prefix
 	}
-	if s.Suffix != "" {
+	if s.Suffix != "" || len(s.Suffix) != 0 {
 		res = res + s.Suffix
 	}
 	return res, nil
@@ -132,6 +132,10 @@ func (s *StringRule) GetNonComplianceCount() int {
 }
 
 func (s *StringRule) GetNonComplianceOtherTypes() []ParamType {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return []ParamType{}
+	}
+
 	return []ParamType{
 		Bool,
 		Int,

@@ -2,6 +2,8 @@ package generates
 
 import (
 	utils2 "Hulk/utils"
+	"encoding/json"
+	"fmt"
 	"path"
 	"strconv"
 )
@@ -106,9 +108,11 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 			t, _ := v.(*BankIdRule)
 			ret[k] = generatorBankID(t)
 		case IDCart:
-			ret[k] = generatorIDCart()
+			t, _ := v.(*IdCartRule)
+			ret[k] = generatorIDCart(t)
 		case IP:
-			ret[k] = generatorIP()
+			t, _ := v.(*IpRule)
+			ret[k] = generatorIP(t)
 		case Phone:
 			ret[k] = generatorPhone()
 		case Time:
@@ -339,13 +343,13 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 }
 
 func Generator(dir string, config map[string]ParamLimit) map[string]interface{} {
-	param := generatorParams(config)
-	fileParamName := path.Join(dir, "param.json")
-	var data = make([]map[string]interface{}, 1)
-	data[0] = param
-	if err := utils2.WriteJson(fileParamName, data); err != nil {
-
-	}
+	//param := generatorParams(config)
+	//fileParamName := path.Join(dir, "param.json")
+	//var data = make([]map[string]interface{}, 1)
+	//data[0] = param
+	//if err := utils2.WriteJson(fileParamName, data); err != nil {
+	//
+	//}
 	//ncParams := getNonComplianceParam(config)
 	//for i, _ := range ncParams {
 	//	b, _ := json.Marshal(ncParams[i])
@@ -357,16 +361,16 @@ func Generator(dir string, config map[string]ParamLimit) map[string]interface{} 
 	//
 	//}
 
-	//ncOtherParams := getNonComplianceOtherTypeParam(config)
-	//for i,_ := range ncOtherParams {
-	//	b,_ := json.Marshal(ncOtherParams[i])
-	//	fmt.Println(string(b))
-	//}
-	//fmt.Println(len(ncOtherParams))
-	//fileParamName := path.Join(dir, "nc_other_param.json")
-	//if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
-	//
-	//}
+	ncOtherParams := getNonComplianceOtherTypeParam(config)
+	for i, _ := range ncOtherParams {
+		b, _ := json.Marshal(ncOtherParams[i])
+		fmt.Println(string(b))
+	}
+	fmt.Println(len(ncOtherParams))
+	fileParamName := path.Join(dir, "nc_other_param.json")
+	if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
+
+	}
 	return nil
 }
 

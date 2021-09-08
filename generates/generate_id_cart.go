@@ -3,13 +3,18 @@ package generates
 import "github.com/srlemon/gen-id/generator"
 
 // 生成身份证号
-func generatorIDCart() string {
+func generatorIDCart(s *IdCartRule) string {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return s.Customized
+	}
+
 	g := generator.GeneratorData{}
 	g.GeneratorIDCart()
 	return g.IDCard
 }
 
 type IdCartRule struct {
+	Customized string
 }
 
 func (s *IdCartRule) GetParamType() ParamType {
@@ -21,6 +26,9 @@ func (s *IdCartRule) GetNonComplianceCount() int {
 }
 
 func (s *IdCartRule) GetNonComplianceOtherTypes() []ParamType {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return []ParamType{}
+	}
 	return []ParamType{
 		Bool,
 		Int,

@@ -59,24 +59,24 @@ func (s *HttpRequest) Send(param map[string]interface{}) {
 			s.req.Body = http.NoBody
 			s.req.GetBody = func() (io.ReadCloser, error) { return http.NoBody, nil }
 		}
-
 	}
 
+	// 执行请求
 	resp, err := s.client.Do(s.req)
 	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
 
-	// 读取请求
-	rbody, err := ioutil.ReadAll(resp.Body)
+	// 读取请求响应
+	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
 	if resp.StatusCode != 200 {
-		fmt.Println(strconv.Itoa(resp.StatusCode) + " " + string(rbody))
+		fmt.Println(strconv.Itoa(resp.StatusCode) + " " + string(data))
 	}
-	fmt.Println(string(rbody))
+	fmt.Println(string(data))
 }
 
 type HttpsRequest struct {

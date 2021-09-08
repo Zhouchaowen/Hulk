@@ -6,16 +6,33 @@ import (
 )
 
 // 生成IP
-func generatorIP() string {
+func generatorIP(s *IpRule) string {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return s.Customized
+	}
+
+	var ip string
+	if s.isIpV4 {
+		ip = generatorIPV4()
+	} else {
+		ip = generatorIPV6()
+	}
+
+	if s.Prefix != "" || len(s.Prefix) != 0 {
+		ip = ip + s.Prefix
+	}
+	if s.Suffix != "" || len(s.Suffix) != 0 {
+		ip = ip + s.Suffix
+	}
+	return ip
+}
+
+func generatorIPV4() string {
 	return fmt.Sprintf("%d.%d.%d.%d", rand.Intn(255), rand.Intn(255), rand.Intn(255), rand.Intn(255))
 }
 
-func generatorIPV4() {
-
-}
-
-func generatorIPV6() {
-
+func generatorIPV6() string {
+	return ""
 }
 
 func generatorNotIP() string {
@@ -39,6 +56,10 @@ func generateNonComplianceIp(ipRule *IpRule, idx int) string {
 }
 
 type IpRule struct {
+	Customized string
+	isIpV4     bool
+	Prefix     string
+	Suffix     string
 }
 
 func (s *IpRule) GetParamType() ParamType {
@@ -50,6 +71,9 @@ func (s *IpRule) GetNonComplianceCount() int {
 }
 
 func (s *IpRule) GetNonComplianceOtherTypes() []ParamType {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return []ParamType{}
+	}
 	return []ParamType{
 		Bool,
 		Int,
@@ -59,7 +83,7 @@ func (s *IpRule) GetNonComplianceOtherTypes() []ParamType {
 
 func (s *IpRule) GetParams() []interface{} {
 	var res []interface{}
-	res = append(res, generatorIP())
+	res = append(res, generatorIP(s))
 	res = append(res, generatorNotIP())
 	res = append(res, generatorNotIPChar())
 

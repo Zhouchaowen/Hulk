@@ -30,7 +30,8 @@ func TestGeneratorEmail(t *testing.T) {
 }
 
 func TestGeneratorIDCart(t *testing.T) {
-	t.Log(generatorIDCart())
+	var s = &IdCartRule{}
+	t.Log(generatorIDCart(s))
 }
 
 func TestGeneratorPhone(t *testing.T) {
@@ -38,7 +39,10 @@ func TestGeneratorPhone(t *testing.T) {
 }
 
 func TestGeneratorIP(t *testing.T) {
-	t.Log(generatorIP())
+	var s = &IpRule{
+		isIpV4: true,
+	}
+	t.Log(generatorIP(s))
 }
 
 func TestGeneratorProvinceAdnCityRand(t *testing.T) {
@@ -112,7 +116,7 @@ func TestGenerator(t *testing.T) {
 			Types: map[string]ParamLimit{
 				"limit": &IntRule{
 					Min: 1,
-					Max: 5,
+					Max: 10,
 				},
 			},
 		},

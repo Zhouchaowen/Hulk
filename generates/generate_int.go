@@ -94,6 +94,9 @@ func (s *IntRule) GetNonComplianceCount() int {
 }
 
 func (s *IntRule) GetNonComplianceOtherTypes() []ParamType {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return []ParamType{}
+	}
 	return []ParamType{
 		Bool,
 		Float64,

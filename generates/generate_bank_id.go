@@ -45,6 +45,9 @@ func (s *BankIdRule) GetNonComplianceCount() int {
 }
 
 func (s *BankIdRule) GetNonComplianceOtherTypes() []ParamType {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return []ParamType{}
+	}
 	return []ParamType{
 		Bool,
 		Int,
