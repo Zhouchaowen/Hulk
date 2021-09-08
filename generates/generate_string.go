@@ -114,13 +114,13 @@ func generateNonComplianceString(s *StringRule, idx int) (string, error) {
 }
 
 type StringRule struct {
-	Min        int
-	Max        int
-	MinLen     int
-	MaxLen     int
-	Customized string
-	Prefix     string
-	Suffix     string
+	Min        int    `json:"min"`
+	Max        int    `json:"max"`
+	MinLen     int    `json:"min_len"`
+	MaxLen     int    `json:"max_len"`
+	Customized string `json:"customized"`
+	Prefix     string `json:"prefix"`
+	Suffix     string `json:"suffix"`
 }
 
 func (s *StringRule) GetParamType() ParamType {

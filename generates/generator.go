@@ -58,8 +58,8 @@ type ParamLimit interface {
 }
 
 type RequestConfig struct {
-	Param  map[string]ParamLimit
-	Header map[string]interface{}
+	Param  map[string]ParamLimit  `json:"param"`
+	Header map[string]interface{} `json:"header"`
 }
 
 // 生成合规参数

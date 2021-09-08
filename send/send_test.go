@@ -31,3 +31,19 @@ func TestHttpRequest_Send(t *testing.T) {
 	req.Init()
 	req.Send(p)
 }
+
+func TestHttpRequestGet_Send(t *testing.T) {
+	var req = HttpRequest{
+		Method: GET,
+		Url:    "http://imianba.cn/details.html",
+	}
+
+	var p = map[string]interface{}{
+		"id": "d6ca54c",
+	}
+
+	b, _ := json.Marshal(p)
+	log.Printf(string(b))
+	req.Init()
+	req.Send(p)
+}
