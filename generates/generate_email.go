@@ -6,9 +6,23 @@ import (
 )
 
 // 生成邮箱
-func generatorEmail() string {
+func generatorEmail(s *EmailRule) string {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return s.Customized
+	}
+
 	g := generator.GeneratorData{}
-	return g.GeneratorEmail()
+	emails := strings.Split(g.GeneratorEmail(), "@")
+
+	buf := emails[0] + "@" + emails[1]
+	if s.Prefix != "" || len(s.Prefix) != 0 {
+		buf = s.Prefix + "@" + emails[1]
+	}
+
+	if s.Suffix != "" || len(s.Suffix) != 0 {
+		buf = emails[0] + "@" + s.Suffix
+	}
+	return buf
 }
 
 func generatorNotEmail() string {
@@ -17,7 +31,11 @@ func generatorNotEmail() string {
 	return emails[0] + "#" + emails[1]
 }
 
+// 注意生成条件互斥，Customized优先级最高，Prefix，Suffix最终只执行最后一个，
 type EmailRule struct {
+	Customized string
+	Prefix     string
+	Suffix     string
 }
 
 func (s *EmailRule) GetParamType() ParamType {
@@ -38,7 +56,7 @@ func (s *EmailRule) GetNonComplianceOtherTypes() []ParamType {
 
 func (s *EmailRule) GetParams() []interface{} {
 	var res []interface{}
-	res = append(res, generatorEmail())
+	res = append(res, generatorEmail(s))
 	res = append(res, generatorNotEmail())
 
 	otherTypes := s.GetNonComplianceOtherTypes()

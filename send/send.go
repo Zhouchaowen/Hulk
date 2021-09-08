@@ -1,6 +1,7 @@
 package send
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -28,11 +29,7 @@ type HttpRequest struct {
 }
 
 func (s *HttpRequest) Init() {
-	// 设置bodyFrom
-	reader, err := SetParam(s.Param, s.ContentType)
-	if err != nil {
-		panic(err)
-	}
+	reader := bytes.NewReader([]byte(""))
 
 	req, err := http.NewRequest(s.Method, s.Url, reader)
 	if err != nil {

@@ -67,17 +67,17 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 		switch v.GetParamType() {
 		case Int:
 			t, _ := v.(*IntRule)
-			if num, err := generateRangeInt(t.Min, t.Max); err == nil {
+			if num, err := generateInt(t); err == nil {
 				ret[k] = num
 			}
 		case String:
 			t, _ := v.(*StringRule)
-			if str, err := generateRangeString(t.Min, t.Max, t.MinLen, t.MaxLen); err == nil {
+			if str, err := generateString(t); err == nil {
 				ret[k] = str
 			}
 		case Float64:
 			t, _ := v.(*FloatRule)
-			if flo, err := generateRangeFloat(t.Min, t.Max, t.Retain); err == nil {
+			if flo, err := generateFloat(t); err == nil {
 				ret[k] = flo
 			}
 		case Map:
@@ -98,11 +98,13 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 		case Bool:
 			ret[k] = generateRangeBool()
 		case Email:
-			ret[k] = generatorEmail()
+			t, _ := v.(*EmailRule)
+			ret[k] = generatorEmail(t)
 		case Address:
 			ret[k] = generateAddress()
 		case BankID:
-			ret[k] = generatorBankID()
+			t, _ := v.(*BankIdRule)
+			ret[k] = generatorBankID(t)
 		case IDCart:
 			ret[k] = generatorIDCart()
 		case IP:
@@ -339,7 +341,9 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 func Generator(dir string, config map[string]ParamLimit) map[string]interface{} {
 	param := generatorParams(config)
 	fileParamName := path.Join(dir, "param.json")
-	if err := utils2.WriteJson(fileParamName, param); err != nil {
+	var data = make([]map[string]interface{}, 1)
+	data[0] = param
+	if err := utils2.WriteJson(fileParamName, data); err != nil {
 
 	}
 	//ncParams := getNonComplianceParam(config)

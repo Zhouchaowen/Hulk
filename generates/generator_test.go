@@ -17,11 +17,16 @@ func BenchmarkGenerateAddress(b *testing.B) {
 }
 
 func TestGeneratorBankID(t *testing.T) {
-	t.Log(generatorBankID())
+	var s = &BankIdRule{}
+	t.Log(generatorBankID(s))
 }
 
 func TestGeneratorEmail(t *testing.T) {
-	t.Log(generatorEmail())
+	var s = &EmailRule{
+		Prefix: "zcw",
+		Suffix: "126.cn",
+	}
+	t.Log(generatorEmail(s))
 }
 
 func TestGeneratorIDCart(t *testing.T) {
@@ -94,7 +99,25 @@ func TestGenerator(t *testing.T) {
 			"arr":      &g12,
 		},
 	}
-	Generator("D:\\GOPROJECTS\\src\\Hulk\\", ic.Param)
+	_ = ic
+
+	var p = map[string]ParamLimit{
+		"zdnsuser": &StringRule{
+			Customized: "94ff8576408972af80af994142e43323",
+		},
+		"resource_type": &StringRule{
+			Customized: "top_category",
+		},
+		"attrs": &MapRule{
+			Types: map[string]ParamLimit{
+				"limit": &IntRule{
+					Min: 1,
+					Max: 5,
+				},
+			},
+		},
+	}
+	Generator("/Users/zdns/Desktop/Hulk", p)
 }
 
 func TestWriteCsv(t *testing.T) {

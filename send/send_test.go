@@ -1,6 +1,10 @@
 package send
 
-import "testing"
+import (
+	"encoding/json"
+	"log"
+	"testing"
+)
 
 func TestHttpRequest_Send(t *testing.T) {
 	var req = HttpRequest{
@@ -16,12 +20,14 @@ func TestHttpRequest_Send(t *testing.T) {
 		},
 	}
 	var p = map[string]interface{}{
-		"zdnsuser":      "b957754b403d261580c870fa78a4e0a1",
+		"zdnsuser":      "94ff8576408972af80af994142e43323",
 		"resource_type": "top_category",
 		"attrs": map[string]interface{}{
 			"limit": 1,
 		},
 	}
+	b, _ := json.Marshal(p)
+	log.Printf(string(b))
 	req.Init()
 	req.Send(p)
 }

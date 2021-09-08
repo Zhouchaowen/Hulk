@@ -19,6 +19,25 @@ const (
 	maxCharLen = 255
 )
 
+func generateString(s *StringRule) (string, error) {
+	if s.Customized != "" || len(s.Customized) != 0 {
+		return s.Customized, nil
+	}
+
+	res, err := generateRangeString(s.Min, s.Max, s.MinLen, s.MaxLen)
+	if err != nil {
+		return "", err
+	}
+
+	if s.Prefix != "" {
+		res = res + s.Prefix
+	}
+	if s.Suffix != "" {
+		res = res + s.Suffix
+	}
+	return res, nil
+}
+
 func generateRangeString(min, max int, minLen, maxLen int) (string, error) {
 	if max <= min || maxLen <= minLen || min < minChar || max > maxChar {
 		return "", errors.New("max cannot be less than min or min cannot be less 33 or max cannot be greater than 126")
@@ -53,44 +72,55 @@ func generateDefaultString() (string, error) {
 }
 
 // 获取[minChar，min]字符区间的值
-func generateMinCharRangeString(min, minLen, maxLen int) (string, error) {
-	return generateRangeString(minChar, min, minLen, maxLen)
+func generateMinCharRangeString(s *StringRule) (string, error) {
+	s.Max = s.Min
+	s.Min = minChar
+	return generateString(s)
 }
 
 // 获取[max，maxChar]字符区间的值
-func generateMaxCharRangeString(max int, minLen, maxLen int) (string, error) {
-	return generateRangeString(max, maxChar, minLen, maxLen)
+func generateMaxCharRangeString(s *StringRule) (string, error) {
+	s.Min = s.Max
+	s.Max = maxChar
+	return generateString(s)
 }
 
 // 获取[minCharLen，minLen]区间长度的值
-func generateMinRangeString(min, max, minLen int) (string, error) {
-	return generateRangeString(min, max, minCharLen, minLen)
+func generateMinRangeString(s *StringRule) (string, error) {
+	s.MaxLen = s.MinLen
+	s.MinLen = minCharLen
+	return generateString(s)
 }
 
 // 获取[maxLen，maxCharLen]区间长度的值
-func generateMaxRangeString(min, max, maxLen int) (string, error) {
-	return generateRangeString(min, max, maxLen, maxCharLen)
+func generateMaxRangeString(s *StringRule) (string, error) {
+	s.MinLen = s.MaxLen
+	s.MaxLen = maxCharLen
+	return generateString(s)
 }
 
 func generateNonComplianceString(s *StringRule, idx int) (string, error) {
 	switch idx {
 	case 0:
-		return generateMinCharRangeString(s.Min, s.MinLen, s.MaxLen)
+		return generateMinCharRangeString(s)
 	case 1:
-		return generateMaxCharRangeString(s.Max, s.MinLen, s.MaxLen)
+		return generateMaxCharRangeString(s)
 	case 2:
-		return generateMinRangeString(s.Min, s.Max, s.MinLen)
+		return generateMinRangeString(s)
 	case 3:
-		return generateMaxRangeString(s.Min, s.Max, s.MaxLen)
+		return generateMaxRangeString(s)
 	}
 	return "", nil
 }
 
 type StringRule struct {
-	Min    int
-	Max    int
-	MinLen int
-	MaxLen int
+	Min        int
+	Max        int
+	MinLen     int
+	MaxLen     int
+	Customized string
+	Prefix     string
+	Suffix     string
 }
 
 func (s *StringRule) GetParamType() ParamType {
@@ -111,15 +141,15 @@ func (s *StringRule) GetNonComplianceOtherTypes() []ParamType {
 
 func (s *StringRule) GetParams() []interface{} {
 	var res []interface{}
-	str, _ := generateRangeString(s.Min, s.Max, s.MinLen, s.MaxLen)
+	str, _ := generateString(s)
 	res = append(res, str)
-	str, _ = generateMinCharRangeString(s.Min, s.MinLen, s.MaxLen)
+	str, _ = generateMinCharRangeString(s)
 	res = append(res, str)
-	str, _ = generateMaxCharRangeString(s.Max, s.MinLen, s.MaxLen)
+	str, _ = generateMaxCharRangeString(s)
 	res = append(res, str)
-	str, _ = generateMinRangeString(s.Min, s.Max, s.MinLen)
+	str, _ = generateMinRangeString(s)
 	res = append(res, str)
-	str, _ = generateMaxRangeString(s.Min, s.Max, s.MaxLen)
+	str, _ = generateMaxRangeString(s)
 	res = append(res, str)
 	otherTypes := s.GetNonComplianceOtherTypes()
 	for i, _ := range otherTypes {
