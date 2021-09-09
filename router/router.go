@@ -14,7 +14,7 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 		})
 	})
 
-	interfaceConfigRouter := router.Group("/admin")
+	interfaceConfigRouter := router.Group("/interface")
 	{
 		controllers.InterfaceConfigRegister(interfaceConfigRouter)
 	}

@@ -17,9 +17,10 @@ func InterfaceConfigRegister(group *gin.RouterGroup) {
 func (s *InterfaceConfig) AddConfig(c *gin.Context) {
 	params := &models.InterfaceConfig{}
 	c.ShouldBindJSON(params)
-	if err := params.BindValidParam(c); err != nil {
-		middleware.ResponseError(c, 2000, err)
-		return
+	paramLimits, err := params.GenParamLimitMap()
+	if err != nil {
+		panic(err)
 	}
-	log.Println(params)
+	log.Println(paramLimits)
+	middleware.ResponseSuccess(c, params)
 }

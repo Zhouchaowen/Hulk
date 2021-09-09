@@ -9,4 +9,6 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/srlemon/gen-id v1.0.1
+	gorm.io/driver/mysql v1.1.2 // indirect
+	gorm.io/gorm v1.21.14 // indirect
 )

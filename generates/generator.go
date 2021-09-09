@@ -58,8 +58,152 @@ type ParamLimit interface {
 }
 
 type RequestConfig struct {
-	Param  map[string]ParamLimit  `json:"param"`
-	Header map[string]interface{} `json:"header"`
+	ParamType ParamType  `json:"param_type"`
+	Param     ParamLimit `json:"param"`
+}
+
+func MapToParamLimitObject(config map[string]interface{}) (ParamLimit, error) {
+	num, err := strconv.Atoi(fmt.Sprintf("%.0f", config["param_type"]))
+	if err != nil {
+		return nil, err
+	}
+	switch ParamType(num) {
+	case Bool:
+	case Int:
+		var intRule = &IntRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, intRule)
+		if err != nil {
+			return nil, err
+		}
+		return intRule, nil
+	case Float64:
+		var floatRule = &FloatRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, floatRule)
+		if err != nil {
+			return nil, err
+		}
+		return floatRule, nil
+	case String:
+		var stringRule = &StringRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, stringRule)
+		if err != nil {
+			return nil, err
+		}
+		return stringRule, nil
+	case Array:
+		var arrayRule = &ArrayRule{}
+		if param, ok := config["param"].(map[string]interface{}); ok {
+			for k, v := range param {
+				if k == "len" {
+					num, err := strconv.Atoi(fmt.Sprintf("%.0f", v))
+					if err != nil {
+						return nil, err
+					}
+					arrayRule.Len = num
+				} else {
+					if child, ok := v.(map[string]interface{}); ok {
+						val, err := MapToParamLimitObject(child)
+						if err != nil {
+							return nil, err
+						}
+						arrayRule.Type = val
+					}
+				}
+			}
+		}
+		return arrayRule, nil
+	case Map:
+	case Email:
+		var emailRule = &EmailRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, emailRule)
+		if err != nil {
+			return nil, err
+		}
+		return emailRule, nil
+	case Address:
+		var addressRule = &AddressRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, addressRule)
+		if err != nil {
+			return nil, err
+		}
+		return addressRule, nil
+	case BankID:
+		var bankIdRule = &BankIdRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, bankIdRule)
+		if err != nil {
+			return nil, err
+		}
+		return bankIdRule, nil
+	case IDCart:
+		var idCartRule = &IdCartRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, idCartRule)
+		if err != nil {
+			return nil, err
+		}
+		return idCartRule, nil
+	case Phone:
+		var phoneRule = &PhoneRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, phoneRule)
+		if err != nil {
+			return nil, err
+		}
+		return phoneRule, nil
+	case IP:
+		var ipRule = &IpRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, ipRule)
+		if err != nil {
+			return nil, err
+		}
+		return ipRule, nil
+	case Time:
+		var timeRule = &TimeRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, timeRule)
+		if err != nil {
+			return nil, err
+		}
+		return timeRule, nil
+	}
+	return nil, fmt.Errorf("no such type %d", num)
 }
 
 // 生成合规参数

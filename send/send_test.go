@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestHttpRequest_Send(t *testing.T) {
+func TestHttpRequestPost_Send(t *testing.T) {
 	var req = HttpRequest{
 		Method:      "POST",
 		Url:         "http://10.2.0.153:6021/sg_logstatistics_cmd",
@@ -34,16 +34,34 @@ func TestHttpRequest_Send(t *testing.T) {
 
 func TestHttpRequestGet_Send(t *testing.T) {
 	var req = HttpRequest{
-		Method: GET,
-		Url:    "http://imianba.cn/details.html",
+		Method:      GET,
+		Url:         "http://10.2.0.153:6040/sg_policymanager",
+		ContentType: ContentTypeFrom,
 	}
-
 	var p = map[string]interface{}{
-		"id": "d6ca54c",
+		"zdnsuser":      "fmVKVZ-HTaW2NDvGcs_K4A",
+		"resource_type": "white_list",
+		"_onlycount":    true,
+		"orderby":       "create_time desc",
 	}
-
 	b, _ := json.Marshal(p)
 	log.Printf(string(b))
 	req.Init()
 	req.Send(p)
 }
+
+//func TestHttpRequestGet_Send(t *testing.T) {
+//	var req = HttpRequest{
+//		Method: GET,
+//		Url:    "http://imianba.cn/details.html",
+//	}
+//
+//	var p = map[string]interface{}{
+//		"id": "d6ca54c",
+//	}
+//
+//	b, _ := json.Marshal(p)
+//	log.Printf(string(b))
+//	req.Init()
+//	req.Send(p)
+//}

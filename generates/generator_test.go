@@ -2,7 +2,7 @@ package generates
 
 import (
 	"Hulk/utils"
-	"log"
+	"bytes"
 	"testing"
 )
 
@@ -70,40 +70,23 @@ func TestGenerator(t *testing.T) {
 		Retain: 2,
 	}
 	g4 := AddressRule{}
-	g5 := EmailRule{}
-	g6 := BankIdRule{}
-	g7 := IdCartRule{}
-	g8 := PhoneRule{}
-	g9 := IpRule{}
-	g10 := TimeRule{}
-	g11 := MapRule{
+	_ = EmailRule{}
+	_ = BankIdRule{}
+	_ = IdCartRule{}
+	_ = PhoneRule{}
+	_ = IpRule{}
+	_ = TimeRule{}
+	_ = MapRule{
 		Types: map[string]ParamLimit{
 			"name":  &g1,
 			"age":   &g2,
 			"score": &g3,
 		},
 	}
-	g12 := ArrayRule{
+	_ = ArrayRule{
 		Len:  2,
 		Type: &g4,
 	}
-	ic := RequestConfig{
-		Param: map[string]ParamLimit{
-			"name":     &g1,
-			"age":      &g2,
-			"score":    &g3,
-			"address":  &g4,
-			"email":    &g5,
-			"BankId":   &g6,
-			"IDCart":   &g7,
-			"Phone":    &g8,
-			"IP":       &g9,
-			"birthday": &g10,
-			"map":      &g11,
-			"arr":      &g12,
-		},
-	}
-	_ = ic
 
 	var p = map[string]ParamLimit{
 		"zdnsuser": &StringRule{
@@ -147,24 +130,11 @@ func TestWriteCsv(t *testing.T) {
 			"money": &g3,
 		},
 	}
-	g5 := ArrayRule{
+	_ = ArrayRule{
 		Len:  2,
 		Type: &g4,
 	}
-	ic := RequestConfig{
-		Param: map[string]ParamLimit{
-			"name":  &g1,
-			"age":   &g2,
-			"money": &g3,
-			"map":   &g4,
-			"arr":   &g5,
-		},
-	}
-	var buf = make([]interface{}, 100)
-	for i := 0; i < 2; i++ {
-		buf[i] = Generator("", ic.Param)
-	}
-
+	var buf bytes.Buffer
 	err := utils.WriteJson("D:\\GOPROJECTS\\src\\Hulk\\data.json", buf)
 	if err != nil {
 		panic(err)
@@ -197,42 +167,111 @@ func TestSpreadParams(t *testing.T) {
 		Retain: 2,
 	}
 	g4 := AddressRule{}
-	g5 := EmailRule{}
-	g6 := BankIdRule{}
-	g7 := IdCartRule{}
-	g8 := PhoneRule{}
-	g9 := IpRule{}
-	g10 := TimeRule{}
-	g11 := MapRule{
+	_ = EmailRule{}
+	_ = BankIdRule{}
+	_ = IdCartRule{}
+	_ = PhoneRule{}
+	_ = IpRule{}
+	_ = TimeRule{}
+	_ = MapRule{
 		Types: map[string]ParamLimit{
 			"name":  &g1,
 			"age":   &g2,
 			"score": &g3,
 		},
 	}
-	g12 := ArrayRule{
+	_ = ArrayRule{
 		Len:  2,
-		Type: &g11,
+		Type: &g4,
 	}
-	ic := RequestConfig{
-		Param: map[string]ParamLimit{
-			"name":     &g1,
-			"age":      &g2,
-			"score":    &g3,
-			"address":  &g4,
-			"email":    &g5,
-			"BankId":   &g6,
-			"IDCart":   &g7,
-			"Phone":    &g8,
-			"IP":       &g9,
-			"birthday": &g10,
-			"map":      &g11,
-			"arr":      &g12,
-		},
-	}
-	params := SpreadParams(ic.Param)
-	for i, _ := range params {
-		log.Println(params[i])
-	}
-
+	_ = `{
+    "id":1,
+    "agreement":"http",
+    "name":"zcw",
+    "addr":"http:1.1.1.1",
+    "method":"GET",
+    "request_config":{
+        "int":{
+            "param_type":2,
+            "param":{
+                "max":122,
+                "min":33
+            }
+        },
+        "float":{
+            "param_type":3,
+            "param":{
+                "max":122,
+                "min":33,
+                "retain":2
+            }
+        },
+        "string":{
+            "param_type":4,
+            "param":{
+                "max":122,
+                "min":33,
+                "maxLen":5,
+                "minLen":3
+            }
+        },
+        "array":{
+            "param_type":5,
+            "param":{
+                "len":3,
+                "type":{
+                    "param_type":4,
+                    "param":{
+                        "max":122,
+                        "min":33,
+                        "maxLen":5,
+                        "minLen":3
+                    }
+                }
+            }
+        },
+        "email":{
+            "param_type":7,
+            "param":{
+                "Customized":"123",
+                "Prefix":"12",
+                "Suffix":"12"
+            }
+        },
+        "address":{
+            "param_type":8,
+            "param":{}
+        },
+        "bankId":{
+            "param_type":9,
+            "param":{
+                "Customized":"123",
+                "Prefix":"12",
+                "Suffix":"12"
+            }
+        },
+        "idCart":{
+            "param_type":10,
+            "param":{
+                "Customized":"123"
+            }
+        },
+        "phone":{
+            "param_type":11,
+            "param":{}
+        },
+        "ip":{
+            "param_type":12,
+            "param":{
+                "Customized":"10.2.0.10",
+                "Prefix":"12",
+                "Suffix":"12"
+            }
+        },
+        "time":{
+            "param_type":13,
+            "param":{}
+        }
+    }
+}`
 }

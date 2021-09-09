@@ -1,8 +1,8 @@
 package generates
 
 type ArrayRule struct {
-	Len  int
-	Type ParamLimit
+	Len  int        `json:"len"`
+	Type ParamLimit `json:"type"`
 }
 
 func (s *ArrayRule) GetParamType() ParamType {
