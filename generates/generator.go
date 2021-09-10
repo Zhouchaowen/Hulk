@@ -62,6 +62,7 @@ type RequestConfig struct {
 	Param     ParamLimit `json:"param"`
 }
 
+// 通过 map 构造 ParamLimit 对象
 func MapToParamLimitObject(config map[string]interface{}) (ParamLimit, error) {
 	num, err := strconv.Atoi(fmt.Sprintf("%.0f", config["param_type"]))
 	if err != nil {
@@ -107,11 +108,11 @@ func MapToParamLimitObject(config map[string]interface{}) (ParamLimit, error) {
 		if param, ok := config["param"].(map[string]interface{}); ok {
 			for k, v := range param {
 				if k == "len" {
-					num, err := strconv.Atoi(fmt.Sprintf("%.0f", v))
+					len, err := strconv.Atoi(fmt.Sprintf("%.0f", v))
 					if err != nil {
 						return nil, err
 					}
-					arrayRule.Len = num
+					arrayRule.Len = len
 				} else {
 					if child, ok := v.(map[string]interface{}); ok {
 						val, err := MapToParamLimitObject(child)
@@ -125,6 +126,22 @@ func MapToParamLimitObject(config map[string]interface{}) (ParamLimit, error) {
 		}
 		return arrayRule, nil
 	case Map:
+		var mapRule = &MapRule{}
+		if param, ok := config["param"].(map[string]interface{}); ok {
+			if types, ok := param["types"]; ok {
+				mapRule.Types = make(map[string]ParamLimit, len(types.(map[string]interface{})))
+				for k, v := range types.(map[string]interface{}) {
+					if child, ok := v.(map[string]interface{}); ok {
+						val, err := MapToParamLimitObject(child)
+						if err != nil {
+							return nil, err
+						}
+						mapRule.Types[k] = val
+					}
+				}
+			}
+		}
+		return mapRule, nil
 	case Email:
 		var emailRule = &EmailRule{}
 		buf, err := json.Marshal(config["param"])

@@ -22,5 +22,6 @@ func (s *InterfaceConfig) AddConfig(c *gin.Context) {
 		panic(err)
 	}
 	log.Println(paramLimits)
+	log.Println(params.Insert())
 	middleware.ResponseSuccess(c, params)
 }

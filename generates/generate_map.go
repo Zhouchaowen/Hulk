@@ -1,7 +1,7 @@
 package generates
 
 type MapRule struct {
-	Types map[string]ParamLimit
+	Types map[string]ParamLimit `json:"types"`
 }
 
 func (s *MapRule) GetParamType() ParamType {

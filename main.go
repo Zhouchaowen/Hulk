@@ -1,6 +1,8 @@
 package main
 
-import "Hulk/router"
+import (
+	"Hulk/router"
+)
 
 func main() {
 	r := router.InitRouter()
