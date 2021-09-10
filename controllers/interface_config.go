@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"Hulk/generates"
 	"Hulk/middleware"
 	"Hulk/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"strconv"
 )
 
 type InterfaceConfig struct{}
@@ -12,6 +15,7 @@ type InterfaceConfig struct{}
 func InterfaceConfigRegister(group *gin.RouterGroup) {
 	ic := InterfaceConfig{}
 	group.POST("/add", ic.AddConfig)
+	group.GET("/create", ic.CreateData)
 }
 
 func (s *InterfaceConfig) AddConfig(c *gin.Context) {
@@ -24,4 +28,19 @@ func (s *InterfaceConfig) AddConfig(c *gin.Context) {
 	log.Println(paramLimits)
 	log.Println(params.Insert())
 	middleware.ResponseSuccess(c, params)
+}
+
+func (s *InterfaceConfig) CreateData(c *gin.Context) {
+	idStr := c.Query("id")
+	if len(idStr) <= 0 {
+		middleware.ResponseError(c, 2000, fmt.Errorf("id is must"))
+	}
+	id, _ := strconv.Atoi(idStr)
+	var ic = models.InterfaceConfig{}
+	ic.GetOneByKey(id)
+	param, err := ic.GenParamLimitMap()
+	if err != nil {
+		middleware.ResponseError(c, 2001, fmt.Errorf("param err"))
+	}
+	generates.Generator("/Users/zdns/Desktop/Hulk", param)
 }

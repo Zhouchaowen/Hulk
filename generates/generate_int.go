@@ -13,10 +13,29 @@ const (
 )
 
 func generateRangeBool() bool {
-	if rand.Intn(2) == 0 {
+	if rand.Intn(100)%2 == 0 {
 		return true
 	}
 	return false
+}
+
+type BoolRule struct {
+}
+
+func (s *BoolRule) GetParamType() ParamType {
+	return Bool
+}
+
+func (s *BoolRule) GetNonComplianceCount() int {
+	return 0
+}
+
+func (s *BoolRule) GetNonComplianceOtherTypes() []ParamType {
+	return []ParamType{
+		Int,
+		Float64,
+		String,
+	}
 }
 
 // 获取[min，max]区间的值

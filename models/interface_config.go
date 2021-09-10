@@ -67,3 +67,24 @@ func (s *InterfaceConfig) Insert() int64 {
 	log.Println(result)
 	return result.RowsAffected
 }
+
+func (s *InterfaceConfig) GetOneByKey(id int) {
+	var res = &InterfaceConfigModel{}
+	db.Db.First(res, id)
+	s.Id = res.Id
+	s.Agreement = res.Agreement
+	s.Name = res.Name
+	s.Addr = res.Addr
+	s.Method = res.Method
+	var rc = make(map[string]interface{})
+	json.Unmarshal([]byte(res.RequestConfig), &rc)
+	s.RequestConfig = rc
+
+	var r = make(map[string]interface{})
+	json.Unmarshal([]byte(res.Response), &r)
+	s.Response = r
+
+	var h = make(map[string]interface{})
+	json.Unmarshal([]byte(res.Header), &h)
+	s.Header = h
+}

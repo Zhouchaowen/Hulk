@@ -230,6 +230,28 @@ func TestSpreadParams(t *testing.T) {
                 }
             }
         },
+        "map":{
+            "param_type":6,
+            "param":{
+                "types":{
+                    "int1":{
+                        "param_type":2,
+                        "param":{
+                            "max":122,
+                            "min":33
+                        }
+                    },
+                    "float1":{
+                        "param_type":3,
+                        "param":{
+                            "max":122,
+                            "min":33,
+                            "retain":2
+                        }
+                    }
+                }
+            }
+        },
         "email":{
             "param_type":7,
             "param":{

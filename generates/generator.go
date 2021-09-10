@@ -70,6 +70,16 @@ func MapToParamLimitObject(config map[string]interface{}) (ParamLimit, error) {
 	}
 	switch ParamType(num) {
 	case Bool:
+		var boolRule = &BoolRule{}
+		buf, err := json.Marshal(config["param"])
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(buf, boolRule)
+		if err != nil {
+			return nil, err
+		}
+		return boolRule, nil
 	case Int:
 		var intRule = &IntRule{}
 		buf, err := json.Marshal(config["param"])
@@ -228,6 +238,8 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 	var ret = make(map[string]interface{}, len(config))
 	for k, v := range config {
 		switch v.GetParamType() {
+		case Bool:
+			ret[k] = generateRangeBool()
 		case Int:
 			t, _ := v.(*IntRule)
 			if num, err := generateInt(t); err == nil {
@@ -258,8 +270,6 @@ func generatorParams(config map[string]ParamLimit) map[string]interface{} {
 				arr[i] = tt[idx]
 			}
 			ret[k] = arr
-		case Bool:
-			ret[k] = generateRangeBool()
 		case Email:
 			t, _ := v.(*EmailRule)
 			ret[k] = generatorEmail(t)
@@ -504,23 +514,23 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 }
 
 func Generator(dir string, config map[string]ParamLimit) map[string]interface{} {
-	//param := generatorParams(config)
-	//fileParamName := path.Join(dir, "param.json")
-	//var data = make([]map[string]interface{}, 1)
-	//data[0] = param
-	//if err := utils2.WriteJson(fileParamName, data); err != nil {
-	//
-	//}
-	//ncParams := getNonComplianceParam(config)
-	//for i, _ := range ncParams {
-	//	b, _ := json.Marshal(ncParams[i])
-	//	fmt.Println(string(b))
-	//}
-	//fmt.Println(len(ncParams))
-	//fileParamName := path.Join(dir, "nc_param.json")
-	//if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
-	//
-	//}
+	param := generatorParams(config)
+	fileParamName := path.Join(dir, "param.json")
+	var data = make([]map[string]interface{}, 1)
+	data[0] = param
+	if err := utils2.WriteJson(fileParamName, data); err != nil {
+
+	}
+	ncParams := getNonComplianceParam(config)
+	for i, _ := range ncParams {
+		b, _ := json.Marshal(ncParams[i])
+		fmt.Println(string(b))
+	}
+	fmt.Println(len(ncParams))
+	fileParamName = path.Join(dir, "nc_param.json")
+	if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
+
+	}
 
 	ncOtherParams := getNonComplianceOtherTypeParam(config)
 	for i, _ := range ncOtherParams {
@@ -528,7 +538,7 @@ func Generator(dir string, config map[string]ParamLimit) map[string]interface{} 
 		fmt.Println(string(b))
 	}
 	fmt.Println(len(ncOtherParams))
-	fileParamName := path.Join(dir, "nc_other_param.json")
+	fileParamName = path.Join(dir, "nc_other_param.json")
 	if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
 
 	}
