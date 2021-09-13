@@ -31,9 +31,10 @@ func generatorBankID(s *BankIdRule) string {
 }
 
 type BankIdRule struct {
-	Customized string
-	Prefix     string
-	Suffix     string
+	MustCustomized bool `json:"must_customized"`
+	Customized     string
+	Prefix         string
+	Suffix         string
 }
 
 func (s *BankIdRule) GetParamType() ParamType {
@@ -41,11 +42,14 @@ func (s *BankIdRule) GetParamType() ParamType {
 }
 
 func (s *BankIdRule) GetNonComplianceCount() int {
+	if len(s.Customized) != 0 {
+		return 0
+	}
 	return 0
 }
 
 func (s *BankIdRule) GetNonComplianceOtherTypes() []ParamType {
-	if s.Customized != "" || len(s.Customized) != 0 {
+	if s.MustCustomized {
 		return []ParamType{}
 	}
 	return []ParamType{

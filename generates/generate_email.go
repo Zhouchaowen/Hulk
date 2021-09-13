@@ -33,9 +33,10 @@ func generatorNotEmail() string {
 
 // 注意生成条件互斥，Customized优先级最高，Prefix，Suffix最终只执行最后一个，
 type EmailRule struct {
-	Customized string
-	Prefix     string
-	Suffix     string
+	MustCustomized bool `json:"must_customized"`
+	Customized     string
+	Prefix         string
+	Suffix         string
 }
 
 func (s *EmailRule) GetParamType() ParamType {
@@ -43,11 +44,14 @@ func (s *EmailRule) GetParamType() ParamType {
 }
 
 func (s *EmailRule) GetNonComplianceCount() int {
+	if len(s.Customized) != 0 {
+		return 0
+	}
 	return 0
 }
 
 func (s *EmailRule) GetNonComplianceOtherTypes() []ParamType {
-	if s.Customized != "" || len(s.Customized) != 0 {
+	if s.MustCustomized {
 		return []ParamType{}
 	}
 	return []ParamType{

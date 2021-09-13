@@ -99,9 +99,10 @@ func generateNonComplianceInt(s *IntRule, idx int) (int, error) {
 }
 
 type IntRule struct {
-	Min        int
-	Max        int
-	Customized string
+	Min            int    `json:"min"`
+	Max            int    `json:"max"`
+	MustCustomized bool   `json:"must_customized"`
+	Customized     string `json:"customized"`
 }
 
 func (s *IntRule) GetParamType() ParamType {
@@ -109,11 +110,14 @@ func (s *IntRule) GetParamType() ParamType {
 }
 
 func (s *IntRule) GetNonComplianceCount() int {
+	if len(s.Customized) != 0 {
+		return 0
+	}
 	return nonComplianceIntCount
 }
 
 func (s *IntRule) GetNonComplianceOtherTypes() []ParamType {
-	if s.Customized != "" || len(s.Customized) != 0 {
+	if s.MustCustomized {
 		return []ParamType{}
 	}
 	return []ParamType{

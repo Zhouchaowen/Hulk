@@ -56,10 +56,11 @@ func generateNonComplianceIp(ipRule *IpRule, idx int) string {
 }
 
 type IpRule struct {
-	Customized string
-	isIpV4     bool
-	Prefix     string
-	Suffix     string
+	isIpV4         bool   `json:"is_ip_v_4"`
+	MustCustomized bool   `json:"must_customized"`
+	Customized     string `json:"customized"`
+	Prefix         string `json:"prefix"`
+	Suffix         string `json:"suffix"`
 }
 
 func (s *IpRule) GetParamType() ParamType {
@@ -67,11 +68,14 @@ func (s *IpRule) GetParamType() ParamType {
 }
 
 func (s *IpRule) GetNonComplianceCount() int {
+	if len(s.Customized) != 0 {
+		return 0
+	}
 	return 2
 }
 
 func (s *IpRule) GetNonComplianceOtherTypes() []ParamType {
-	if s.Customized != "" || len(s.Customized) != 0 {
+	if s.MustCustomized {
 		return []ParamType{}
 	}
 	return []ParamType{

@@ -63,7 +63,17 @@ func (s *InterfaceConfig) Insert() int64 {
 	ifm.Response = string(r)
 	h, _ := json.Marshal(s.Header)
 	ifm.Header = string(h)
-	result := db.Db.Create(&ifm)
+
+	result := db.Db.Model(&ifm).Where("id = ?", ifm.Id)
+	if result.Error != nil {
+		result = db.Db.Create(&ifm)
+	} else {
+		result = db.Db.Model(&ifm).Updates(&ifm)
+		if result.Error != nil {
+			return 0
+		}
+	}
+
 	log.Println(result)
 	return result.RowsAffected
 }

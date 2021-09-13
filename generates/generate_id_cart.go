@@ -14,7 +14,8 @@ func generatorIDCart(s *IdCartRule) string {
 }
 
 type IdCartRule struct {
-	Customized string
+	MustCustomized bool `json:"must_customized"`
+	Customized     string
 }
 
 func (s *IdCartRule) GetParamType() ParamType {
@@ -22,11 +23,14 @@ func (s *IdCartRule) GetParamType() ParamType {
 }
 
 func (s *IdCartRule) GetNonComplianceCount() int {
+	if len(s.Customized) != 0 {
+		return 0
+	}
 	return 0
 }
 
 func (s *IdCartRule) GetNonComplianceOtherTypes() []ParamType {
-	if s.Customized != "" || len(s.Customized) != 0 {
+	if s.MustCustomized {
 		return []ParamType{}
 	}
 	return []ParamType{

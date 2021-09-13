@@ -2,6 +2,8 @@ package generates
 
 import (
 	utils2 "Hulk/utils"
+	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"path"
@@ -366,28 +368,37 @@ func generatorNonComplianceParam(paramLimit ParamLimit, idx int) interface{} {
 	switch paramLimit.GetParamType() {
 	case Int:
 		t, _ := paramLimit.(*IntRule)
-		if res, err := generateNonComplianceInt(t, idx); err == nil {
+		tmp := &IntRule{}
+		deepCopy(tmp, t)
+		if res, err := generateNonComplianceInt(tmp, idx); err == nil {
 			return res
 		}
 	case Float64:
 		t, _ := paramLimit.(*FloatRule)
-		if res, err := generateNonComplianceFloat(t, idx); err == nil {
+		tmp := &FloatRule{}
+		deepCopy(tmp, t)
+		if res, err := generateNonComplianceFloat(tmp, idx); err == nil {
 			return res
 		}
 	case String:
 		t, _ := paramLimit.(*StringRule)
-		if res, err := generateNonComplianceString(t, idx); err == nil {
+		tmp := &StringRule{}
+		deepCopy(tmp, t)
+		if res, err := generateNonComplianceString(tmp, idx); err == nil {
 			return res
 		}
 	case Phone:
 		t, _ := paramLimit.(*PhoneRule)
-		if res, err := generateNonCompliancePhone(t, idx); err == nil {
+		tmp := &PhoneRule{}
+		deepCopy(tmp, t)
+		if res, err := generateNonCompliancePhone(tmp, idx); err == nil {
 			return res
 		}
 	}
 	return nil
 }
 
+// 获取指定类型不合规的参数
 func getNonComplianceParam(config map[string]ParamLimit) []map[string]interface{} {
 	var paramValue = make([]ParamLimit, len(config))
 	var paramKey = make([]string, len(config))
@@ -431,6 +442,7 @@ func getNonComplianceParam(config map[string]ParamLimit) []map[string]interface{
 			continue
 		}
 
+		// 生成非结构类型
 		for j := 0; j < val.GetNonComplianceCount(); j++ {
 			var ret = make(map[string]interface{}, len(config))
 			for k, v := range config {
@@ -450,6 +462,7 @@ func getNonComplianceParam(config map[string]ParamLimit) []map[string]interface{
 	return res
 }
 
+// 获取非指定类型不合规的参数
 func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]interface{} {
 	var paramValue = make([]ParamLimit, len(config))
 	var paramKey = make([]string, len(config))
@@ -515,34 +528,34 @@ func getNonComplianceOtherTypeParam(config map[string]ParamLimit) []map[string]i
 
 func Generator(dir string, config map[string]ParamLimit) map[string]interface{} {
 	param := generatorParams(config)
-	fileParamName := path.Join(dir, "param.json")
+	fileParamName := path.Join(dir, "c_param.json")
 	var data = make([]map[string]interface{}, 1)
 	data[0] = param
 	if err := utils2.WriteJson(fileParamName, data); err != nil {
 
 	}
+
 	ncParams := getNonComplianceParam(config)
-	for i, _ := range ncParams {
-		b, _ := json.Marshal(ncParams[i])
-		fmt.Println(string(b))
-	}
-	fmt.Println(len(ncParams))
 	fileParamName = path.Join(dir, "nc_param.json")
 	if err := utils2.WriteJson(fileParamName, ncParams); err != nil {
 
 	}
 
 	ncOtherParams := getNonComplianceOtherTypeParam(config)
-	for i, _ := range ncOtherParams {
-		b, _ := json.Marshal(ncOtherParams[i])
-		fmt.Println(string(b))
-	}
-	fmt.Println(len(ncOtherParams))
 	fileParamName = path.Join(dir, "nc_other_param.json")
 	if err := utils2.WriteJson(fileParamName, ncOtherParams); err != nil {
 
 	}
 	return nil
+}
+
+// 深拷贝
+func deepCopy(dst, src interface{}) error {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(src); err != nil {
+		return err
+	}
+	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
 }
 
 type ParamNode struct {

@@ -71,10 +71,11 @@ func generateNonComplianceFloat(s *FloatRule, idx int) (float64, error) {
 }
 
 type FloatRule struct {
-	Min        float64
-	Max        float64
-	Retain     int
-	Customized string
+	Min            float64
+	Max            float64
+	Retain         int
+	MustCustomized bool `json:"must_customized"`
+	Customized     string
 }
 
 func (s *FloatRule) GetParamType() ParamType {
@@ -82,11 +83,14 @@ func (s *FloatRule) GetParamType() ParamType {
 }
 
 func (s *FloatRule) GetNonComplianceCount() int {
+	if len(s.Customized) != 0 {
+		return 0
+	}
 	return 3
 }
 
 func (s *FloatRule) GetNonComplianceOtherTypes() []ParamType {
-	if s.Customized != "" || len(s.Customized) != 0 {
+	if s.MustCustomized {
 		return []ParamType{}
 	}
 	return []ParamType{
