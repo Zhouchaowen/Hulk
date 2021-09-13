@@ -31,10 +31,10 @@ func generatorBankID(s *BankIdRule) string {
 }
 
 type BankIdRule struct {
-	MustCustomized bool `json:"must_customized"`
-	Customized     string
-	Prefix         string
-	Suffix         string
+	MustCustomized bool   `json:"must_customized"`
+	Customized     string `json:"customized"`
+	Prefix         string `json:"prefix"`
+	Suffix         string `json:"suffix"`
 }
 
 func (s *BankIdRule) GetParamType() ParamType {
