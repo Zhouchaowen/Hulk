@@ -1,6 +1,7 @@
 package control
 
 import (
+	"Hulk/models"
 	"Hulk/send"
 	"Hulk/utils"
 	"fmt"
@@ -18,7 +19,7 @@ func loadData(dir string, file string) []map[string]interface{} {
 	return data
 }
 
-func Run(dir string, file string) {
+func Run(dir string, file string, config models.InterfaceConfig) {
 	data := loadData(dir, file)
 	var send = send.HttpRequest{
 		Method:      send.POST,

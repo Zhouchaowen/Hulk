@@ -6,7 +6,6 @@ import (
 	"Hulk/generates"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 type InterfaceConfig struct {
@@ -49,7 +48,7 @@ func (s *InterfaceConfig) GenParamLimitMap() (map[string]generates.ParamLimit, e
 	return paramLimit, nil
 }
 
-func (s *InterfaceConfig) Insert() int64 {
+func (s *InterfaceConfig) toModel() InterfaceConfigModel {
 	var ifm = InterfaceConfigModel{
 		Id:        s.Id,
 		Addr:      s.Addr,
@@ -63,6 +62,11 @@ func (s *InterfaceConfig) Insert() int64 {
 	ifm.Response = string(r)
 	h, _ := json.Marshal(s.Header)
 	ifm.Header = string(h)
+	return ifm
+}
+
+func (s *InterfaceConfig) Insert() int64 {
+	var ifm = s.toModel()
 
 	result := db.Db.Model(&ifm).Where("id = ?", ifm.Id)
 	if result.Error != nil {
@@ -74,13 +78,12 @@ func (s *InterfaceConfig) Insert() int64 {
 		}
 	}
 
-	log.Println(result)
 	return result.RowsAffected
 }
 
 func (s *InterfaceConfig) GetOneByKey(id int) {
-	var res = &InterfaceConfigModel{}
-	db.Db.First(res, id)
+	var res = GetInterfaceConfigModel(id)
+
 	s.Id = res.Id
 	s.Agreement = res.Agreement
 	s.Name = res.Name
@@ -97,4 +100,10 @@ func (s *InterfaceConfig) GetOneByKey(id int) {
 	var h = make(map[string]interface{})
 	json.Unmarshal([]byte(res.Header), &h)
 	s.Header = h
+}
+
+func GetInterfaceConfigModel(id int) *InterfaceConfigModel {
+	var res = &InterfaceConfigModel{}
+	db.Db.First(res, id)
+	return res
 }
