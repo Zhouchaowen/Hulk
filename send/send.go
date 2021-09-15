@@ -19,26 +19,25 @@ const (
 )
 
 type HttpRequest struct {
-	Method      string
-	Url         string
-	ContentType ContentType
-	Header      map[string]string
-	Param       map[string]interface{}
+	contentType ContentType
 	req         *http.Request
 	client      *http.Client
 }
 
-func (s *HttpRequest) Init() {
+func NewHttpRequest(method string, url string, contentType int, header map[string]string) *HttpRequest {
 	reader := bytes.NewReader([]byte(""))
 
-	req, err := http.NewRequest(s.Method, s.Url, reader)
+	req, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		panic(err)
 	}
 	// 设置Header
-	initHeader(req, s.Header, s.ContentType)
-	s.req = req
-	s.client = http.DefaultClient
+	initHeader(req, header, ContentType(contentType))
+	return &HttpRequest{
+		contentType: ContentType(contentType),
+		req:         req,
+		client:      http.DefaultClient,
+	}
 }
 
 func (s *HttpRequest) Send(param map[string]interface{}) {
@@ -46,7 +45,7 @@ func (s *HttpRequest) Send(param map[string]interface{}) {
 		panic("this client is nil,you must execute init first")
 	}
 	// 设置req
-	reader, err := SetParam(param, s.ContentType)
+	reader, err := SetParam(param, s.contentType)
 	if reader != nil {
 		s.req.Body = ioutil.NopCloser(reader)
 		s.req.ContentLength = int64(reader.Len())

@@ -1,12 +1,19 @@
-package control
+package send
 
 import (
-	"Hulk/models"
-	"Hulk/send"
 	"Hulk/utils"
 	"fmt"
 	"path"
 )
+
+type RequestControl struct {
+	uid         string
+	count       int
+	Method      string
+	Url         string
+	ContentType int
+	Header      map[string]string
+}
 
 func loadData(dir string, file string) []map[string]interface{} {
 	var data = make([]map[string]interface{}, 0)
@@ -19,15 +26,9 @@ func loadData(dir string, file string) []map[string]interface{} {
 	return data
 }
 
-func Run(dir string, file string, config models.InterfaceConfig) {
-	data := loadData(dir, file)
-	var send = send.HttpRequest{
-		Method:      send.POST,
-		Url:         "http://10.2.0.153:6021/sg_logstatistics_cmd",
-		ContentType: send.ContentTypeJson,
-		Header:      map[string]string{},
-	}
-	send.Init()
+func (s *RequestControl) Run(file string) {
+	data := loadData("/Users/zdns/Desktop/Hulk", file)
+	send := NewHttpRequest(s.Method, s.Url, s.ContentType, s.Header)
 	for i, _ := range data {
 		send.Send(data[i])
 	}
