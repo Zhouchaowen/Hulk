@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
 const (
@@ -40,9 +39,9 @@ func NewHttpRequest(method string, url string, contentType int, header map[strin
 	}
 }
 
-func (s *HttpRequest) Send(param map[string]interface{}) {
+func (s *HttpRequest) Send(param map[string]interface{}) (interface{}, error) {
 	if s.client == nil {
-		panic("this client is nil,you must execute init first")
+		return nil, fmt.Errorf("this client is nil,you must execute init first")
 	}
 	// 设置req
 	reader, err := SetParam(param, s.contentType)
@@ -63,19 +62,19 @@ func (s *HttpRequest) Send(param map[string]interface{}) {
 	// 执行请求
 	resp, err := s.client.Do(s.req)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("request err:%s", err.Error())
 	}
 	defer resp.Body.Close()
 
 	// 读取请求响应
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("read response body err:%s", err.Error())
 	}
 	if resp.StatusCode != 200 {
-		fmt.Println(strconv.Itoa(resp.StatusCode) + " " + string(data))
+		return nil, fmt.Errorf("request err")
 	}
-	fmt.Println(string(data))
+	return data, nil
 }
 
 type HttpsRequest struct {

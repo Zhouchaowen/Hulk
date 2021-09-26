@@ -3,6 +3,7 @@ package send
 import (
 	"Hulk/utils"
 	"fmt"
+	"log"
 	"path"
 )
 
@@ -30,6 +31,10 @@ func (s *RequestControl) Run(file string) {
 	data := loadData("/Users/zdns/Desktop/Hulk", file)
 	send := NewHttpRequest(s.Method, s.Url, s.ContentType, s.Header)
 	for i, _ := range data {
-		send.Send(data[i])
+		result, err := send.Send(data[i])
+		if err != nil {
+			log.Printf("request:%s", err)
+		}
+		_ = result
 	}
 }
